@@ -22,9 +22,9 @@ class ThreadController extends Controller
     public function store(Request $request)
     {
       $thread = Thread::create($request->all());
-    return response()->json([
-      'data' => $thread
-    ], 201);
+      return response()->json([
+        'data' => $thread
+      ], 201);
     }
     public function show(Thread $thread)
     {
