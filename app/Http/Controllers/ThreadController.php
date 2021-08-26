@@ -10,10 +10,10 @@ class ThreadController extends Controller
 {
     public function index()
     {
-      $threads = Thread::all();
-    return response()->json([
-      'data'=>$threads,
-    ],200);
+      $threads = Thread::latest()->paginate(20);
+    return view('threads.index', [
+        'threads' => $threads
+    ]);
     }
     public function create()
     {
@@ -21,15 +21,10 @@ class ThreadController extends Controller
     }
     public function store(Request $request)
     {
-      $thread = DB::transaction(function() use ($request){
-        $thread = $request->user()->threads()->create([
-          'title'=>$request->title,
-        ]);
-        return $thread;
-      });
-      return response()->json([
-        'data'=>$thread,
-      ],201);
+      $thread = Thread::create($request->all());
+    return response()->json([
+      'data' => $thread
+    ], 201);
     }
     public function show(Thread $thread)
     {
