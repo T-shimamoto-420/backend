@@ -10,10 +10,10 @@ class ThreadController extends Controller
 {
     public function index()
     {
-      $threads = Thread::all();
-      return response()->json([
-        'data'=>$threads,
-      ],200);
+      $threads = Thread::latest()->paginate(20);
+    return view('threads.index', [
+        'threads' => $threads
+    ]);
     }
     public function create()
     {
@@ -21,10 +21,13 @@ class ThreadController extends Controller
     }
     public function store(Request $request)
     {
-      $thread = Thread::create($request->all());
-      return response()->json([
-        'data'=>$thread,
-      ],201);
+      $thread = DB::transaction(function() use ($request){
+        $thread = $request->user()->threads()->create([
+          'title'=>$request->title,
+        ]);
+        return $thread;
+      });
+      return redirect()->route('threads.show',$thread);
     }
     public function show(Thread $thread)
     {
@@ -39,5 +42,14 @@ class ThreadController extends Controller
     {
       $thread->delete();
       return back();
+      if ($thread) {
+        return response()->json([
+          'message' => 'Deleted successfully',
+        ], 200);
+      } else {
+        return response()->json([
+          'message' => 'Not found',
+        ], 404);
+      }
     }
 }
